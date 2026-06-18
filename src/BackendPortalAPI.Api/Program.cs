@@ -1,0 +1,76 @@
+using BackendPortalAPI.Application;
+using BackendPortalAPI.Infrastructure;
+using BackendPortalAPI.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// ---- Services ----
+builder.Services
+    .AddControllers()
+    .AddJsonOptions(o =>
+        o.JsonSerializerOptions.Converters.Add(
+            new System.Text.Json.Serialization.JsonStringEnumConverter()));
+builder.Services.AddOpenApi();
+
+builder.Services.AddApplication();
+builder.Services.AddInfrastructure(builder.Configuration);
+
+// Allow the Next.js frontend (dev) to call the API
+const string FrontendCors = "frontend";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(FrontendCors, policy => policy
+        .WithOrigins(
+            builder.Configuration.GetSection("Cors:Origins").Get<string[]>()
+                ?? ["http://localhost:3000"])
+        .AllowAnyHeader()
+        .AllowAnyMethod());
+});
+
+var app = builder.Build();
+
+// ---- Auto-migrate on startup (dev convenience) ----
+if (app.Configuration.GetValue("Database:AutoMigrate", true))
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    try { db.Database.Migrate(); }
+    catch (Exception ex)
+    {
+        app.Logger.LogError(ex, "Database migration failed. Is PostgreSQL running and the connection string correct?");
+    }
+}
+
+// ---- Pipeline ----
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi(); // OpenAPI document at /openapi/v1.json
+    // Swagger UI served at /swagger, reading the built-in OpenAPI document
+    app.UseSwaggerUI(o =>
+    {
+        o.SwaggerEndpoint("/openapi/v1.json", "Backend Portal API v1");
+        o.DocumentTitle = "Backend Portal API";
+    });
+}
+
+app.UseStaticFiles(); // serves uploaded photos from wwwroot/uploads
+app.UseCors(FrontendCors);
+app.MapControllers();
+
+app.MapGet("/health", () => Results.Ok(new { status = "ok", service = "Backend Portal API" }));
+
+// Friendly root so browsing the API base shows info instead of a 404
+app.MapGet("/", () => Results.Ok(new
+{
+    service = "Backend Portal API",
+    status = "running",
+    endpoints = new
+    {
+        health = "/health",
+        profiles = "/api/profiles",
+        openApi = "/openapi/v1.json"
+    }
+}));
+
+app.Run();
