@@ -57,7 +57,8 @@ if (app.Configuration.GetValue("Database:AutoMigrate", true))
 }
 
 // ---- Pipeline ----
-if (app.Environment.IsDevelopment())
+// OpenAPI + Swagger UI. On by default (incl. production); set "Swagger:Enabled" = false to disable.
+if (app.Configuration.GetValue("Swagger:Enabled", true))
 {
     app.MapOpenApi(); // OpenAPI document at /openapi/v1.json
     // Swagger UI served at /swagger, reading the built-in OpenAPI document
