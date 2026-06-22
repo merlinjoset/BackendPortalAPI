@@ -1,6 +1,8 @@
+using BackendPortalAPI.Application.Contacts;
 using BackendPortalAPI.Application.Interests;
 using BackendPortalAPI.Application.Members;
 using BackendPortalAPI.Application.Profiles;
+using BackendPortalAPI.Application.Shortlists;
 using BackendPortalAPI.Application.Users;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,6 +16,8 @@ public static class DependencyInjection
         services.AddScoped<IAdminUserService, AdminUserService>();
         services.AddScoped<IInterestService, InterestService>();
         services.AddScoped<IMemberService, MemberService>();
+        services.AddScoped<IShortlistService, ShortlistService>();
+        services.AddScoped<IContactRequestService, ContactRequestService>();
         return services;
     }
 }

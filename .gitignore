@@ -21,6 +21,10 @@ appsettings.Development.local.json
 appsettings.*.local.json
 secrets.json
 
+# ---- Member roster (real PII - never commit to a public repo; lives in the DB) ----
+**/Data/members.json
+**/Data/members.csv
+
 # ---- Misc ----
 *.log
 .DS_Store

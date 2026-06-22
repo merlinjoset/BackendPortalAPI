@@ -1,6 +1,6 @@
 # BackendPortalAPI
 
-Backend Portal API for the CSI Tamil Parish (Dubai) — the **.NET 10** REST API behind the
+Backend Portal API for the CSI Tamil Parish (Dubai) - the **.NET 10** REST API behind the
 **CSI Holy Matrimony** portal. Frontend lives in [MarriagePortalWeb](https://github.com/merlinjoset/MarriagePortalWeb).
 
 ## Architecture (Clean Architecture)
@@ -16,7 +16,7 @@ BackendPortalAPI.slnx
 Tables: `TblProfiles`, `TblUsers`, `TblMembers`, `TblInterests`.
 
 ## Features
-- Profiles: browse (filters), detail, create — **membership-card validated** before creation
+- Profiles: browse (filters), detail, create - **membership-card validated** before creation
 - Photo upload (`/api/uploads/photo` → served from `wwwroot/uploads`)
 - Express Interest enquiries
 - Admin: dashboard stats, verification (status changes), staff users & roles, interests
@@ -29,7 +29,7 @@ dotnet run --launch-profile http
 ```
 - API: http://localhost:5117  ·  Health: `/health`  ·  Swagger UI: `/swagger`
 - Requires **PostgreSQL** on `localhost:5432`. Connection string is in `appsettings.json`
-  (`ConnectionStrings:Default`) — defaults to a local `MarriagePortal` database. On first run it
+  (`ConnectionStrings:Default`) - defaults to a local `MarriagePortal` database. On first run it
   creates the database, applies migrations, and seeds sample data.
 
 ## Migrations

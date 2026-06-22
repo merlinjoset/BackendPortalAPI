@@ -8,7 +8,7 @@ namespace BackendPortalAPI.Api.Controllers;
 [Route("api/interests")]
 public class InterestsController(IInterestService service) : ControllerBase
 {
-    /// <summary>Express interest in a profile (public — enquiry based).</summary>
+    /// <summary>Express interest in a profile (public - enquiry based).</summary>
     [HttpPost]
     public async Task<ActionResult<InterestDto>> Create([FromBody] CreateInterestDto dto, CancellationToken ct)
     {

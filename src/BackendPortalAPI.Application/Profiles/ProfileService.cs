@@ -20,18 +20,19 @@ public class ProfileService(IProfileRepository repo) : IProfileService
         return profile?.ToDetail();
     }
 
-    public async Task<ProfileDetailDto> CreateAsync(CreateProfileDto dto, CancellationToken ct = default)
+    public async Task<ProfileDetailDto> CreateAsync(CreateProfileDto dto, Guid? ownerMemberId = null, CancellationToken ct = default)
     {
         var entity = dto.ToEntity();
         entity.Status = ProfileStatus.Pending; // every new profile awaits parish verification
+        entity.OwnerMemberId = ownerMemberId;  // the member whose card this profile was registered under
         entity.ReferenceId = await GenerateReferenceIdAsync(ct);
         await repo.AddAsync(entity, ct);
         await repo.SaveChangesAsync(ct);
         return entity.ToDetail();
     }
 
-    public Task<bool> SetStatusAsync(Guid id, ProfileStatus status, CancellationToken ct = default) =>
-        repo.UpdateStatusAsync(id, status, ct);
+    public Task<bool> SetStatusAsync(Guid id, ProfileStatus status, string? note = null, CancellationToken ct = default) =>
+        repo.UpdateStatusAsync(id, status, note, ct);
 
     public async Task<ProfileStatsDto> GetStatsAsync(CancellationToken ct = default)
     {

@@ -14,7 +14,7 @@ internal static class ProfileMappings
         p.Id, p.ReferenceId, p.CreatedFor, p.LookingFor, p.FullName, p.Gender, p.Age,
         p.Height, p.MaritalStatus, p.MotherTongue, p.Denomination, p.HomeParish,
         p.Congregation, p.AboutFaith, p.Education, p.Profession, p.City,
-        p.FatherOccupation, p.MotherOccupation, p.MainPhotoUrl, p.Status, p.CreatedAt);
+        p.FatherOccupation, p.MotherOccupation, p.MainPhotoUrl, p.Status, p.StatusNote, p.CreatedAt);
 
     public static Profile ToEntity(this CreateProfileDto d) => new()
     {

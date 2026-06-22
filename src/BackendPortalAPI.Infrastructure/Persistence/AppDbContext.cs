@@ -10,9 +10,21 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<AdminUser> AdminUsers => Set<AdminUser>();
     public DbSet<Interest> Interests => Set<Interest>();
     public DbSet<Member> Members => Set<Member>();
+    public DbSet<Shortlist> Shortlists => Set<Shortlist>();
+    public DbSet<ContactRequest> ContactRequests => Set<ContactRequest>();
+    public DbSet<AgmMember> AgmMembers => Set<AgmMember>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
+        b.Entity<Shortlist>(e =>
+        {
+            e.ToTable("TblShortlists");
+            e.HasKey(s => s.Id);
+            e.HasIndex(s => new { s.MemberId, s.ProfileId }).IsUnique();
+            e.HasIndex(s => s.MemberId);
+            e.HasQueryFilter(s => !s.IsDeleted);
+        });
+
         b.Entity<Member>(e =>
         {
             e.ToTable("TblMembers");
@@ -51,11 +63,39 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.HasQueryFilter(u => !u.IsDeleted);
         });
 
+        b.Entity<AgmMember>(e =>
+        {
+            e.ToTable("TblAGMMembers");
+            e.HasKey(m => m.Id);
+            e.Property(m => m.MembershipNo).HasMaxLength(40).IsRequired();
+            e.HasIndex(m => m.MembershipNo).IsUnique();
+            e.Property(m => m.Name).HasMaxLength(200).IsRequired();
+            e.Property(m => m.Congregation).HasMaxLength(80);
+            e.Property(m => m.ContactNumber).HasMaxLength(40);
+            e.HasQueryFilter(m => !m.IsDeleted);
+        });
+
+        b.Entity<ContactRequest>(e =>
+        {
+            e.ToTable("TblContactRequests");
+            e.HasKey(r => r.Id);
+            // One standing request per (requester, profile) pair.
+            e.HasIndex(r => new { r.RequesterMemberId, r.ProfileId }).IsUnique();
+            e.HasIndex(r => r.OwnerMemberId);
+            e.Property(r => r.RequesterName).HasMaxLength(150).IsRequired();
+            e.Property(r => r.RequesterCongregation).HasMaxLength(80);
+            e.Property(r => r.ProfileName).HasMaxLength(150).IsRequired();
+            e.Property(r => r.ProfileReferenceId).HasMaxLength(20);
+            e.Property(r => r.Status).HasConversion<string>().HasMaxLength(20);
+            e.HasQueryFilter(r => !r.IsDeleted);
+        });
+
         b.Entity<Profile>(e =>
         {
             e.ToTable("TblProfiles");
             e.HasKey(p => p.Id);
             e.Ignore(p => p.Age); // computed, not stored
+            e.HasIndex(p => p.OwnerMemberId);
             e.Property(p => p.ReferenceId).HasMaxLength(20).IsRequired();
             e.HasIndex(p => p.ReferenceId).IsUnique();
             e.Property(p => p.FullName).HasMaxLength(150).IsRequired();
@@ -65,6 +105,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.Property(p => p.Denomination).HasMaxLength(80);
             e.Property(p => p.MainPhotoUrl).HasMaxLength(2048);
             e.Property(p => p.Status).HasConversion<string>().HasMaxLength(20);
+            e.Property(p => p.StatusNote).HasMaxLength(500);
             e.Property(p => p.Gender).HasConversion<string>().HasMaxLength(10);
             e.HasQueryFilter(p => !p.IsDeleted);
         });
@@ -86,10 +127,21 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             ("11111111-1111-1111-1111-111111111106","Joel V.",Gender.Male,1999,"5'8\"","Lutheran","India","TELC Church, Chennai","Bachelor's (B.Sc)","Lab Technician","Chennai, India",ProfileStatus.Pending),
         ];
 
+        // Link each seed profile to one of the active seed members so contact-reveal
+        // approval is demoable (e.g. signing in as CSI-DXB-1001 owns Abinaya & Rebecca).
+        Guid[] ownerIds =
+        [
+            Guid.Parse("33333333-3333-3333-3333-333333333301"),
+            Guid.Parse("33333333-3333-3333-3333-333333333302"),
+            Guid.Parse("33333333-3333-3333-3333-333333333303"),
+            Guid.Parse("33333333-3333-3333-3333-333333333304"),
+        ];
+
         var seeds = rows.Select((r, i) => new Profile
         {
             Id = Guid.Parse(r.id),
             ReferenceId = $"CSI{1042 + i}",
+            OwnerMemberId = ownerIds[i % ownerIds.Length],
             CreatedFor = "Self",
             LookingFor = r.g == Gender.Female ? "Groom" : "Bride",
             Mobile = "+971 50 000 0000",
@@ -120,7 +172,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             new AdminUser { Id = Guid.Parse("22222222-2222-2222-2222-222222222204"), Name = "Office Desk", Email = "office@csitamilparishdubai.com", Role = "Office Staff", Congregation = "Dubai (Main)", Status = AdminUserStatus.Invited, CreatedAt = userSeedDate }
         );
 
-        // Sample membership registry — to be REPLACED with the parish's real member list later.
+        // Sample membership registry - to be REPLACED with the parish's real member list later.
         b.Entity<Member>().HasData(
             new Member { Id = Guid.Parse("33333333-3333-3333-3333-333333333301"), MembershipNo = "CSI-DXB-1001", Name = "Mr. & Mrs. Rajesh Daniel", Congregation = "Dubai", IsActive = true, CreatedAt = userSeedDate },
             new Member { Id = Guid.Parse("33333333-3333-3333-3333-333333333302"), MembershipNo = "CSI-DXB-1002", Name = "Mr. & Mrs. Samuel John", Congregation = "Dubai", IsActive = true, CreatedAt = userSeedDate },

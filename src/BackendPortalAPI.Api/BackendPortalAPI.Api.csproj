@@ -20,4 +20,10 @@
     <ProjectReference Include="..\BackendPortalAPI.Infrastructure\BackendPortalAPI.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Real parish member roster (imported into TblMembers on startup). -->
+    <Content Update="Data\members.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Update="Data\members.csv" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>

@@ -15,6 +15,8 @@ public class ProfileRepository(AppDbContext db) : IProfileRepository
         if (!string.IsNullOrWhiteSpace(q.Denomination)) query = query.Where(p => p.Denomination == q.Denomination);
         if (!string.IsNullOrWhiteSpace(q.Congregation)) query = query.Where(p => p.Congregation == q.Congregation);
         if (q.Status is not null) query = query.Where(p => p.Status == q.Status);
+        // Public listings only ever show approved, live profiles.
+        if (q.Live) query = query.Where(p => p.Status == ProfileStatus.Verified || p.Status == ProfileStatus.Active);
 
         var total = await query.CountAsync(ct);
         var items = await query
@@ -29,16 +31,21 @@ public class ProfileRepository(AppDbContext db) : IProfileRepository
     public Task<Profile?> GetByIdAsync(Guid id, CancellationToken ct = default) =>
         db.Profiles.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id, ct);
 
+    public async Task<IReadOnlyList<Profile>> GetByIdsAsync(IEnumerable<Guid> ids, CancellationToken ct = default) =>
+        await db.Profiles.AsNoTracking().Where(p => ids.Contains(p.Id)).ToListAsync(ct);
+
     public Task<Profile?> GetByReferenceIdAsync(string referenceId, CancellationToken ct = default) =>
         db.Profiles.AsNoTracking().FirstOrDefaultAsync(p => p.ReferenceId == referenceId, ct);
 
     public Task<int> CountAsync(CancellationToken ct = default) => db.Profiles.CountAsync(ct);
 
-    public async Task<bool> UpdateStatusAsync(Guid id, ProfileStatus status, CancellationToken ct = default)
+    public async Task<bool> UpdateStatusAsync(Guid id, ProfileStatus status, string? note = null, CancellationToken ct = default)
     {
         var profile = await db.Profiles.FirstOrDefaultAsync(p => p.Id == id, ct);
         if (profile is null) return false;
         profile.Status = status;
+        // Keep the reason for rejections and suspensions; clear it when approving/reactivating.
+        profile.StatusNote = (status == ProfileStatus.Rejected || status == ProfileStatus.Suspended) ? note : null;
         profile.UpdatedAt = DateTime.UtcNow;
         await db.SaveChangesAsync(ct);
         return true;

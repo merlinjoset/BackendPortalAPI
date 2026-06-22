@@ -1,6 +1,8 @@
+using BackendPortalAPI.Application.Contacts;
 using BackendPortalAPI.Application.Interests;
 using BackendPortalAPI.Application.Members;
 using BackendPortalAPI.Application.Profiles;
+using BackendPortalAPI.Application.Shortlists;
 using BackendPortalAPI.Application.Users;
 using BackendPortalAPI.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -21,6 +23,8 @@ public static class DependencyInjection
         services.AddScoped<IAdminUserRepository, AdminUserRepository>();
         services.AddScoped<IInterestRepository, InterestRepository>();
         services.AddScoped<IMemberRepository, MemberRepository>();
+        services.AddScoped<IShortlistRepository, ShortlistRepository>();
+        services.AddScoped<IContactRequestRepository, ContactRequestRepository>();
         return services;
     }
 }

@@ -5,7 +5,7 @@ namespace BackendPortalAPI.Domain.Entities;
 
 /// <summary>
 /// A matrimony profile for the CSI Tamil Parish community.
-/// Faith-centred fields only — no caste/community is ever stored.
+/// Faith-centred fields only - no caste/community is ever stored.
 /// </summary>
 public class Profile : AuditableEntity
 {
@@ -14,6 +14,13 @@ public class Profile : AuditableEntity
 
     /// <summary>Parish membership card number this profile was registered against.</summary>
     public string? MembershipNo { get; set; }
+
+    /// <summary>
+    /// The member who owns this profile (the card it was registered under).
+    /// This member approves requests to reveal the contact number. Null for legacy/seed
+    /// profiles created before owner linking.
+    /// </summary>
+    public Guid? OwnerMemberId { get; set; }
 
     // Who created the profile and what they seek
     public string CreatedFor { get; set; } = "Self";   // Self / Son / Daughter / Ward
@@ -43,10 +50,13 @@ public class Profile : AuditableEntity
     public string? FatherOccupation { get; set; }
     public string? MotherOccupation { get; set; }
 
-    // Photos — main photo for now; a gallery table can be added later
+    // Photos - main photo for now; a gallery table can be added later
     public string? MainPhotoUrl { get; set; }
 
     public ProfileStatus Status { get; set; } = ProfileStatus.Pending;
+
+    /// <summary>Note attached to the last status change - e.g. the reason a profile was rejected.</summary>
+    public string? StatusNote { get; set; }
 
     /// <summary>Age derived from <see cref="DateOfBirth"/>; not stored.</summary>
     public int? Age

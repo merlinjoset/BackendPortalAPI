@@ -4,7 +4,7 @@ using BackendPortalAPI.Domain.Enums;
 namespace BackendPortalAPI.Domain.Entities;
 
 /// <summary>
-/// A staff account that can sign in to the admin portal — presbyter, moderator, office staff.
+/// A staff account that can sign in to the admin portal - presbyter, moderator, office staff.
 /// Distinct from a matrimony <see cref="Profile"/>.
 /// </summary>
 public class AdminUser : AuditableEntity

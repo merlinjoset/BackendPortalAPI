@@ -41,6 +41,7 @@ public record ProfileDetailDto(
     string? MotherOccupation,
     string? MainPhotoUrl,
     ProfileStatus Status,
+    string? StatusNote,
     DateTime CreatedAt);
 
 /// <summary>Payload to create a new profile from the public register form.</summary>
@@ -75,6 +76,8 @@ public class ProfileQuery
     public string? Denomination { get; set; }
     public string? Congregation { get; set; }
     public ProfileStatus? Status { get; set; }
+    /// <summary>When true, return only publicly visible profiles (Verified or Active).</summary>
+    public bool Live { get; set; }
     public int Page { get; set; } = 1;
     public int PageSize { get; set; } = 24;
 }
@@ -88,4 +91,6 @@ public record ProfileStatsDto(int Total, int Pending, int Verified, int Active, 
 public class UpdateStatusDto
 {
     public ProfileStatus Status { get; set; }
+    /// <summary>Optional note (e.g. the reason when rejecting).</summary>
+    public string? Note { get; set; }
 }

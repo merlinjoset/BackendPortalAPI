@@ -16,6 +16,7 @@ public class ProfilesController(IProfileService service, IMemberService members)
         [FromQuery] string? denomination,
         [FromQuery] string? congregation,
         [FromQuery] ProfileStatus? status,
+        [FromQuery] bool live = false,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 24,
         CancellationToken ct = default)
@@ -26,6 +27,7 @@ public class ProfilesController(IProfileService service, IMemberService members)
             Denomination = denomination,
             Congregation = congregation,
             Status = status,
+            Live = live,
             Page = page,
             PageSize = pageSize
         };
@@ -47,12 +49,13 @@ public class ProfilesController(IProfileService service, IMemberService members)
         if (string.IsNullOrWhiteSpace(dto.FullName))
             return BadRequest("Full name is required.");
 
-        // Membership gate — a profile can only be created against a valid, active membership card.
+        // Membership gate - a profile can only be created against a valid, active membership card.
         var membership = await members.ValidateAsync(dto.MembershipNo ?? string.Empty, ct);
         if (!membership.Valid)
             return BadRequest(membership.Message ?? "Invalid membership card.");
 
-        var created = await service.CreateAsync(dto, ct);
+        // Link the profile to the validated member so they can later approve contact requests.
+        var created = await service.CreateAsync(dto, membership.MemberId, ct);
         return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
     }
 
@@ -61,11 +64,11 @@ public class ProfilesController(IProfileService service, IMemberService members)
     public async Task<ActionResult<ProfileStatsDto>> Stats(CancellationToken ct) =>
         Ok(await service.GetStatsAsync(ct));
 
-    /// <summary>Change a profile's lifecycle status — approve / reject / suspend (admin).</summary>
+    /// <summary>Change a profile's lifecycle status - approve / reject / suspend (admin).</summary>
     [HttpPatch("{id:guid}/status")]
     public async Task<IActionResult> SetStatus(Guid id, [FromBody] UpdateStatusDto dto, CancellationToken ct)
     {
-        var ok = await service.SetStatusAsync(id, dto.Status, ct);
+        var ok = await service.SetStatusAsync(id, dto.Status, dto.Note, ct);
         return ok ? NoContent() : NotFound();
     }
 }

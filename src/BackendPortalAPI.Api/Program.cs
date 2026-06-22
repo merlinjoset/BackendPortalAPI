@@ -5,6 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Local, gitignored override for secrets (e.g. the cloud DB connection string).
+builder.Configuration.AddJsonFile("appsettings.Development.local.json", optional: true, reloadOnChange: true);
+
 // ---- Services ----
 builder.Services
     .AddControllers()
@@ -35,7 +38,18 @@ if (app.Configuration.GetValue("Database:AutoMigrate", true))
 {
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    try { db.Database.Migrate(); }
+    try
+    {
+        db.Database.Migrate();
+
+        // Import the real parish member roster (AGM eligible-members list) into TblMembers.
+        var rosterPath = Path.Combine(app.Environment.ContentRootPath, "Data", "members.json");
+        var (added, updated, total) = await BackendPortalAPI.Infrastructure.Persistence.MemberRosterImporter
+            .ImportAsync(db, rosterPath);
+        if (total > 0)
+            app.Logger.LogInformation("Member roster import: {Added} added, {Updated} updated ({Total} in file).",
+                added, updated, total);
+    }
     catch (Exception ex)
     {
         app.Logger.LogError(ex, "Database migration failed. Is PostgreSQL running and the connection string correct?");

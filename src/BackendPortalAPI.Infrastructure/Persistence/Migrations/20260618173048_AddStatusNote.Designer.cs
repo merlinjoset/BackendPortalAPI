@@ -3,6 +3,7 @@ using System;
 using BackendPortalAPI.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BackendPortalAPI.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260618173048_AddStatusNote")]
+    partial class AddStatusNote
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -114,112 +117,6 @@ namespace BackendPortalAPI.Infrastructure.Persistence.Migrations
                             Role = "Office Staff",
                             Status = "Invited"
                         });
-                });
-
-            modelBuilder.Entity("BackendPortalAPI.Domain.Entities.AgmMember", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Congregation")
-                        .IsRequired()
-                        .HasMaxLength(80)
-                        .HasColumnType("character varying(80)");
-
-                    b.Property<string>("ContactNumber")
-                        .HasMaxLength(40)
-                        .HasColumnType("character varying(40)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateOnly?>("DateOfBirth")
-                        .HasColumnType("date");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("MembershipNo")
-                        .IsRequired()
-                        .HasMaxLength(40)
-                        .HasColumnType("character varying(40)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MembershipNo")
-                        .IsUnique();
-
-                    b.ToTable("TblAGMMembers", (string)null);
-                });
-
-            modelBuilder.Entity("BackendPortalAPI.Domain.Entities.ContactRequest", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<Guid>("OwnerMemberId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("ProfileId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("ProfileName")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
-
-                    b.Property<string>("ProfileReferenceId")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
-
-                    b.Property<string>("RequesterCongregation")
-                        .HasMaxLength(80)
-                        .HasColumnType("character varying(80)");
-
-                    b.Property<Guid>("RequesterMemberId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("RequesterName")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OwnerMemberId");
-
-                    b.HasIndex("RequesterMemberId", "ProfileId")
-                        .IsUnique();
-
-                    b.ToTable("TblContactRequests", (string)null);
                 });
 
             modelBuilder.Entity("BackendPortalAPI.Domain.Entities.Interest", b =>
@@ -455,9 +352,6 @@ namespace BackendPortalAPI.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("OwnerMemberId")
-                        .HasColumnType("uuid");
-
                     b.Property<string>("Profession")
                         .HasColumnType("text");
 
@@ -479,8 +373,6 @@ namespace BackendPortalAPI.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("OwnerMemberId");
 
                     b.HasIndex("ReferenceId")
                         .IsUnique();
@@ -508,7 +400,6 @@ namespace BackendPortalAPI.Infrastructure.Persistence.Migrations
                             MaritalStatus = "Never married",
                             Mobile = "+971 50 000 0000",
                             MotherTongue = "Tamil",
-                            OwnerMemberId = new Guid("33333333-3333-3333-3333-333333333301"),
                             Profession = "Staff Nurse",
                             ReferenceId = "CSI1042",
                             Status = "Verified"
@@ -533,7 +424,6 @@ namespace BackendPortalAPI.Infrastructure.Persistence.Migrations
                             MaritalStatus = "Never married",
                             Mobile = "+971 50 000 0000",
                             MotherTongue = "Tamil",
-                            OwnerMemberId = new Guid("33333333-3333-3333-3333-333333333302"),
                             Profession = "Software Engineer",
                             ReferenceId = "CSI1043",
                             Status = "Verified"
@@ -558,7 +448,6 @@ namespace BackendPortalAPI.Infrastructure.Persistence.Migrations
                             MaritalStatus = "Never married",
                             Mobile = "+971 50 000 0000",
                             MotherTongue = "Tamil",
-                            OwnerMemberId = new Guid("33333333-3333-3333-3333-333333333303"),
                             Profession = "Accountant",
                             ReferenceId = "CSI1044",
                             Status = "Active"
@@ -583,7 +472,6 @@ namespace BackendPortalAPI.Infrastructure.Persistence.Migrations
                             MaritalStatus = "Never married",
                             Mobile = "+971 50 000 0000",
                             MotherTongue = "Tamil",
-                            OwnerMemberId = new Guid("33333333-3333-3333-3333-333333333304"),
                             Profession = "College Lecturer",
                             ReferenceId = "CSI1045",
                             Status = "Verified"
@@ -608,7 +496,6 @@ namespace BackendPortalAPI.Infrastructure.Persistence.Migrations
                             MaritalStatus = "Never married",
                             Mobile = "+971 50 000 0000",
                             MotherTongue = "Tamil",
-                            OwnerMemberId = new Guid("33333333-3333-3333-3333-333333333301"),
                             Profession = "School Teacher",
                             ReferenceId = "CSI1046",
                             Status = "Active"
@@ -633,7 +520,6 @@ namespace BackendPortalAPI.Infrastructure.Persistence.Migrations
                             MaritalStatus = "Never married",
                             Mobile = "+971 50 000 0000",
                             MotherTongue = "Tamil",
-                            OwnerMemberId = new Guid("33333333-3333-3333-3333-333333333302"),
                             Profession = "Lab Technician",
                             ReferenceId = "CSI1047",
                             Status = "Pending"
